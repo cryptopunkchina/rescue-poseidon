@@ -1,4 +1,6 @@
 use franklin_crypto::bellman::Engine;
+use num_bigint::{BigInt, Sign};
+
 #[derive(Debug, PartialEq, Eq)]
 pub enum HashFamily {
     Rescue,
@@ -23,7 +25,7 @@ impl std::fmt::Debug for Sbox {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Alpha(_) => write!(f, "quintic sbox"),
-            Self::AlphaInverse(_) => write!(f, "quintic inverse sbox"),
+            Self::AlphaInverse(data) => write!(f, "quintic inverse sbox:{:?}", BigInt::from(*data.get(0).unwrap() as i128)),
         }
     }
 }

@@ -315,7 +315,10 @@ mod test {
     #[test]
     fn test_sbox_quintic_inv() {
         let alpha = 5;
+        // mod = 21888242871839275222246405745257275088548364400416034343698204186575808495617-1  //alt_bn128 q
+        // alpha_inv = 17510594297471420177797124596205820070838691520332827474958563349260646796493
         let alpha_inv = Sbox::AlphaInverse(compute_inverse_alpha::<Bn256, 4>(alpha));
+        println!("alpha_inv:{:?}", alpha_inv);
         test_sbox(alpha_inv);
     }
 

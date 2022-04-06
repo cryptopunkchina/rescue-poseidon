@@ -27,10 +27,10 @@ pub(crate) fn batch_inversion<E: Engine>(v: &mut [E::Fr]) {
         tmp.mul_assign(&g);
         prod.push(tmp);
     }
-
+    println!("tmp:{:?},{}", tmp, E::Fr::char());
     // Invert `tmp`.
     tmp = tmp.inverse().unwrap(); // Guaranteed to be nonzero.
-
+    println!("tmp after:{:?}", tmp);
     // Second pass: iterate backwards to compute inverses
     for (g, s) in v
         .iter_mut()
@@ -68,9 +68,12 @@ pub(crate) fn construct_mds_matrix<E: Engine, R: Rng, const S: usize>(
     let WIDTH = S;
 
     loop {
-        let x: Vec<E::Fr> = (0..WIDTH).map(|_| rng.gen()).collect();
-        let y: Vec<E::Fr> = (0..WIDTH).map(|_| rng.gen()).collect();
-
+        // let x: Vec<E::Fr> = (0..WIDTH).map(|_| rng.gen()).collect();
+        // let y: Vec<E::Fr> = (0..WIDTH).map(|_| rng.gen()).collect();
+        let x: Vec<E::Fr> = (0..WIDTH).map(|e| E::Fr::from_str(&format!("{}",e)).unwrap()).collect();
+        let y: Vec<E::Fr> = (0..WIDTH).map(|e| E::Fr::from_str(&format!("{}",e+WIDTH+1)).unwrap()).collect();
+        println!("mds x:{:?}", x);
+        println!("mds y:{:?}", y);
         let mut invalid = false;
 
         // quick and dirty check for uniqueness of x
@@ -137,17 +140,17 @@ pub(crate) fn construct_mds_matrix<E: Engine, R: Rng, const S: usize>(
                 mds_matrix[place_into] = element;
             }
         }
-
+        println!("mds_matrix:{:?}", mds_matrix);
         // now we need to do the inverse
         batch_inversion::<E>(&mut mds_matrix[..]);
-
+        println!("mds_matrix after:{:?}", mds_matrix);
         let mut result = [[E::Fr::zero(); S]; S];
 
         mds_matrix
             .chunks_exact(S)
             .zip(result.iter_mut())
             .for_each(|(values, row)| *row = values.try_into().expect("row in const"));
-
+        println!("result after:{:?}", result);
         return result;
     }
 }
@@ -176,6 +179,7 @@ pub(crate) fn compute_gcd<E: Engine, const N: usize>(n: u64) -> Option<[u64; N]>
         
     }
 
+    println!("alpha_inv:{:?}", y.clone().to_str_radix(10));
     match y.to_biguint(){
         Some(value) => return Some(biguint_to_u64_array(value)),
         _ => return None,
